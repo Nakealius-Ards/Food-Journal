@@ -1,0 +1,194 @@
+/*Code: Food Journal
+ *Developer: Nakealius-Ards
+ *Date: 20 January 2025
+ *Purpose: This code will take the users input regarding a meals' nutrition facts (Meal Name, Fats, Carbs, Protein, and Sugar)
+ *and return the calorie count, and log the meal in a scrollpane / on going log with a daily calorie counter.
+ * 
+ * COMMUNITY PROJECT NOTE:
+ * - Keep contributions modular and well-documented.
+ * - Avoid adding personal identifiers in code or comments.
+ * - Extend functionality by adding new nutrition fields or features.
+ * - Consider cross-platform compatibility (JavaFX).
+ */
+
+package foodJournal;
+
+import java.awt.Dimension;
+import java.awt.Toolkit;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import javafx.application.Application;
+import javafx.scene.Node;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
+
+public class foodJournalMain extends Application {
+	//Data Field
+    int dailyCals;
+    VBox mealLogVBox;
+    Text dailyCalCount;
+
+    public static void main(String[] args) throws Exception {
+        launch(args);
+    }
+    
+    @Override
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("Food Journal");
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        double screenWidth = screenSize.getWidth();
+        double screenHeight = screenSize.getHeight() - 75;
+        
+        Text dailyCalCount = new Text("Daily Calorie Count: " + "\t" + String.valueOf(dailyCals));
+        dailyCalCount.setLayoutX(150);
+        dailyCalCount.setLayoutY(20);
+        
+        // Create a VBox to hold the log entries
+        VBox mealLogVBox = new VBox(10);
+        mealLogVBox.setLayoutX(15);
+        mealLogVBox.setLayoutY(30);
+        
+        // Scroll pane to hold the VBox
+        ScrollPane mealScrollPane = new ScrollPane();
+        mealScrollPane.setLayoutX(15);
+        mealScrollPane.setLayoutY(30);
+        mealScrollPane.setPrefSize(300, 400);
+        mealScrollPane.setContent(mealLogVBox);  // Set VBox as the content of the ScrollPane
+        
+        Button addMealBtn = new Button("Add Meal"); 
+        addMealBtn.setLayoutX(15);
+        addMealBtn.setOnAction(inputCals ->{
+        	Stage inputCalsStage = new Stage();
+        	inputCalsStage.setTitle("Input Calories");
+        	
+        	Text mealNameText = new Text("Meal Name: ");
+        	mealNameText.setLayoutX(15);
+        	mealNameText.setLayoutY(30);
+        	
+        	TextField mealNameTextbox = new TextField();
+        	mealNameTextbox.setLayoutX(85);
+        	mealNameTextbox.setLayoutY(15);
+        	
+        	Text totalFatText = new Text("Total Fat: ");
+        	totalFatText.setLayoutX(15);
+        	totalFatText.setLayoutY(60);
+        	
+        	TextField totalFatTextbox = new TextField();
+        	totalFatTextbox.setLayoutX(70);
+        	totalFatTextbox.setLayoutY(45);
+        	
+        	Text totalCarbsText = new Text("Total Carbohydrates: ");
+        	totalCarbsText.setLayoutX(15);
+        	totalCarbsText.setLayoutY(90);
+        	
+        	TextField totalCarbsTextbox = new TextField();
+        	totalCarbsTextbox.setLayoutX(130);
+        	totalCarbsTextbox.setLayoutY(75);
+        	
+        	Text totalProteinText = new Text("Total Protein: ");
+        	totalProteinText.setLayoutX(15);
+        	totalProteinText.setLayoutY(120);
+        	
+        	TextField totalProteinTextbox = new TextField();
+        	totalProteinTextbox.setLayoutX(90);
+        	totalProteinTextbox.setLayoutY(105);
+        	
+        	Text totalSugarText = new Text("Total Sugar: ");
+        	totalSugarText.setLayoutX(15);
+        	totalSugarText.setLayoutY(150);
+        	
+        	TextField totalSugarTextbox = new TextField();
+        	totalSugarTextbox.setLayoutX(85);
+        	totalSugarTextbox.setLayoutY(135);
+        	
+        	Button logBtn = new Button("Log Meal");
+        	logBtn.setLayoutX(150);
+        	logBtn.setLayoutY(190);
+        	logBtn.setOnAction(logMealAction ->{
+        		// Calculate values from text fields
+        		String mealName = mealNameTextbox.getText();
+        		int fat = Integer.parseInt(totalFatTextbox.getText());
+        		int carbs = Integer.parseInt(totalCarbsTextbox.getText());
+        		int protein = Integer.parseInt(totalProteinTextbox.getText());
+        		int sugar = Integer.parseInt(totalSugarTextbox.getText());
+        		int totalCals = ((fat*9) + (carbs*4) + (protein*4)); //calculate the total amount of calories
+        		Instant timeNow = Instant.now();
+        		//Convert timeNow to LocalDateTime
+        		LocalDateTime dateTime = LocalDateTime.ofInstant(timeNow, ZoneId.systemDefault());
+        		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEE, MMMM dd, yyy HH:mm:ss a"); //Format the date time to be more readable
+        		String formattedDateTime = dateTime.format(formatter);
+        		
+        		
+        		// Create the log text
+        		String logMealText = ((mealName + "\n" + 
+        			"Total Fat: " + (fat * 9) + " kcal\n" + 
+        			"Total Carbs: " + (carbs * 4) + " kcal\n" + 
+        			"Total Protein: " + (protein * 4) + " kcal\n" +
+        			"Total Sugar: " + (sugar * 4) + " kcal\n" +
+        			"Total Calories: " + totalCals) + "\n" + formattedDateTime);
+        			
+        		
+        		// Create a new Text node for the log
+        		Text logText = new Text(logMealText);
+        		//Add kCals to daily count
+        		dailyCalCount.setText("Daily Calorie Count: " + "\t" + String.valueOf(dailyCals + totalCals));
+        		dailyCals = (dailyCals + totalCals);
+        		
+        		// Add the new log entry to the meal log display area
+        		mealLogVBox.getChildren().add(logText);
+        		
+        		//clear the input fields after the button is pressed
+        		mealNameTextbox.clear();
+        		totalFatTextbox.clear();
+        		totalCarbsTextbox.clear();
+        		totalProteinTextbox.clear();
+        		totalSugarTextbox.clear();
+        		inputCalsStage.close();
+        	});
+        	
+        	Pane inputCalsPane = new Pane();
+        	inputCalsPane.getChildren().addAll(mealNameText, mealNameTextbox, totalFatText, totalFatTextbox, totalCarbsText, 
+        			totalCarbsTextbox, totalProteinText, totalProteinTextbox, totalSugarText, totalSugarTextbox, logBtn);
+        	inputCalsStage.setScene(new Scene(inputCalsPane, 350, 250));
+        	inputCalsStage.show();
+        });
+        
+      //Clear Daily Calorie Counter Button
+    	Button clearCalsBtn = new Button("Clear");
+    	clearCalsBtn.setLayoutX(95);
+    	clearCalsBtn.setLayoutY(1);
+    	clearCalsBtn.setOnAction(clearCalCounter -> {
+    		dailyCals = 0;
+    		dailyCalCount.setText("Daily Calorie Count: " + "\t" + String.valueOf(dailyCals));
+    	});
+        
+        Pane root = new Pane();
+        root.getChildren().addAll(addMealBtn, mealScrollPane, dailyCalCount, clearCalsBtn);
+        primaryStage.setScene(new Scene(root, 330, 450));
+        primaryStage.show();
+    }
+    
+    // Method to collect all the meal logs in the VBox
+    private List<String> getMealLogs() {
+        List<String> logs = new ArrayList<>();
+        for (Node node : mealLogVBox.getChildren()) {
+            if (node instanceof Text) {
+                logs.add(((Text) node).getText());
+            }
+        }
+        return logs;
+    }
+}
+
