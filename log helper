@@ -1,0 +1,58 @@
+/*Code: Food Journal
+ *Developer: Nakealius-Ards
+ *Date: 20 Jan 2025
+ *Purpose: This code will take the users input regarding a meals' nutrition facts (Meal Name, Fats, Carbs, Protein, and Sugar)
+ *and return the calorie count, and log the meal in a scrollpane / on going log with a daily calorie counter.
+ *ExtClass: This code will write to a .txt data file in order to save the main class food log.
+ */
+package foodJournal;
+
+import java.io.*;
+import java.util.*;
+
+public class foodJournalUtils {
+    private static final String DATA_FILE = "foodJournalData.txt"; // File to store meal logs and calorie count
+
+    // Save the meal log and daily calorie count to the file
+    public static void saveData(int dailyCals, List<String> mealLogs) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(DATA_FILE))) {
+            // Save the daily calorie count
+            writer.write("DailyCalories: " + dailyCals);
+            writer.newLine();
+
+            // Save the meal logs
+            for (String log : mealLogs) {
+                writer.write(log);
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Load the meal log and daily calorie count from the file
+    public static Map<String, Object> loadData() {
+        Map<String, Object> data = new HashMap<>();
+        List<String> mealLogs = new ArrayList<>();
+        int dailyCals = 0;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(DATA_FILE))) {
+            String line;
+            boolean readingLogs = false;
+
+            while ((line = reader.readLine()) != null) {
+                if (line.startsWith("DailyCalories:")) {
+                    dailyCals = Integer.parseInt(line.split(":")[1].trim());
+                } else {
+                    mealLogs.add(line);
+                }
+            }
+            data.put("dailyCals", dailyCals);
+            data.put("mealLogs", mealLogs);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return data;
+    }
+}
